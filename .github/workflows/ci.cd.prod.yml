@@ -35,14 +35,15 @@ jobs:
         #arguments: build
       run : ./gradlew clean build --exclude-task test
 
-    - name: Copy files via SSH
-      uses: appleboy/scp-action@v0.1.1
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_KEY }}
-        source: "build/libs/*.jar"
-        target: "/home/ec2-user/app/"
+    - name: Build and deploy
+      run: |
+        echo "$SSH_PEM_KEY" >> $HOME/key.pem
+        chmod 400 $HOME/key.pem
+        ssh -i $HOME/key.pem -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_KNOWN_HOSTS} '~/script.sh'
+      env:
+        SSH_USER: ${{secrets.SSH_USER}}
+        SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+        SSH_PEM_KEY: ${{secrets.SSH_PEM_KEY}}
 
     - name: Execute deployment script
       uses: appleboy/ssh-action@v0.1.1
