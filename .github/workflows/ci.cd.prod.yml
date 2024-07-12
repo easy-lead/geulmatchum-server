@@ -34,20 +34,37 @@ jobs:
       #with:
         #arguments: build
       run : ./gradlew clean build --exclude-task test
+      
+    # 빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드!!
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: easyLeadServer
+        path: build/libs/easyLeadServer-0.0.1-SNAPSHOT.jar
 
-    - name: Copy script to EC2 instance
-      run: |
-        scp -i $HOME/key.pem -o StrictHostKeyChecking=no path/to/local/script.sh ${SSH_USER}@${SSH_KNOWN_HOSTS}:/home/${SSH_USER}/
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-     - name: EC2 Deploy
-       env:
+    - name: Get current time
+      uses: josStorer/get-current-time@v2.0.2
+      id: current-time
+      with:
+        format: YYYY-MM-DDTHH-mm-ss
+        utcOffset: "+09:00"
+
+    - name: Download build artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: easyLeadServer
+        path: build/libs/
+        
+    - name: EC2 Deploy
+      env:
          EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
          EC2_HOST: ${{ secrets.EC2_HOST }}
          EC2_USER: ${{ secrets.EC2_USER }}
-       run: |
+      run: |
           # SSH Key 파일 생성
           echo "$EC2_SSH_PRIVATE_KEY" > ec2_ssh_key
           chmod 600 ec2_ssh_key
