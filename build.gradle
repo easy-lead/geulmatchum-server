@@ -22,9 +22,7 @@ configurations {
 repositories {
     mavenCentral()
 }
-bootJar {
-    archiveBaseName.set('easyLeadServer')
-}
+
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
@@ -42,4 +40,19 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+tasks.register('buildZip', Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+bootJar {
+    archiveBaseName.set('easyLeadServer')
+}
+
+jar {
+    enabled = false
 }
