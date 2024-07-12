@@ -114,7 +114,7 @@ public class GptService {
         }
         System.out.println("subject = " + subject);
         System.out.println("content = " + content);
-        return response.body();
+        return content;
     }
 
 }
