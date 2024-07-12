@@ -34,7 +34,11 @@ jobs:
       #with:
         #arguments: build
       run : ./gradlew clean build --exclude-task test
-      
+
+    - name: Copy script to EC2 instance
+      run: |
+        scp -i $HOME/key.pem -o StrictHostKeyChecking=no path/to/local/script.sh ${SSH_USER}@${SSH_KNOWN_HOSTS}:/home/${SSH_USER}/
+  
     - name: Build and deploy
       run: |
         echo "$SSH_PEM_KEY" > $HOME/key.pem
