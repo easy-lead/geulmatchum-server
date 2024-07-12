@@ -1,15 +1,13 @@
 name: CI/CD
 
-# 워크플로가 시작될 조건 지정
 on:
   push:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 실행 환경 지정
+    runs-on: ubuntu-latest
 
-    # 실행 스텝 지정
     steps:
       - uses: actions/checkout@v3
 
@@ -18,17 +16,16 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
 
-      # application.properties 파일 설정
       - name: Setup application properties
         run: |
           echo "${{ secrets.APPLICATION_KEY }}" > ./src/main/resources/application-key.properties
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run : ./gradlew clean build -x test
-      
-    # 빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드!!
+        run: ./gradlew clean build -x test
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
@@ -38,32 +35,33 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    steps:
-    - name: Get current time
-      uses: josStorer/get-current-time@v2.0.2
-      id: current-time
-      with:
-        format: YYYY-MM-DDTHH-mm-ss
-        utcOffset: "+09:00"
 
-    - name: Download build artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: easyLeadServer
-        path: build/libs/
-        
-    - name: EC2 Deploy
-      env:
-         EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_KEY }}
-         EC2_HOST: ${{ secrets.EC2_HOST }}
-         EC2_USER: ${{ secrets.EC2_USER }}
-      run: |
+    steps:
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: easyLeadServer
+          path: ./artifact/
+
+      - name: EC2 Deploy
+        env:
+          EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
           # SSH Key 파일 생성
           echo "$EC2_SSH_PRIVATE_KEY" > ec2_ssh_key
           chmod 600 ec2_ssh_key
           
           # 패키지 파일을 EC2 인스턴스로 복사
-          scp -i ec2_ssh_key -o StrictHostKeyChecking=no build/libs/easyLeadServer-0.0.1-SNAPSHOT.jar ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/easylead-server
+          scp -i ec2_ssh_key -o StrictHostKeyChecking=no artifact/easyLeadServer-0.0.1-SNAPSHOT.jar ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/easylead-server
           
           # 인스턴스에서 JAR 파일 실행
           ssh -i ec2_ssh_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "pgrep java | xargs kill -9; nohup java -jar /home/${EC2_USER}/easylead-server/easyLeadServer-0.0.1-SNAPSHOT.jar > /home/${EC2_USER}/easylead-server/log/app.log 2>&1 &"
