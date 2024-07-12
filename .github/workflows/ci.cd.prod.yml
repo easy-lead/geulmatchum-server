@@ -38,13 +38,22 @@ jobs:
     - name: Copy script to EC2 instance
       run: |
         scp -i $HOME/key.pem -o StrictHostKeyChecking=no path/to/local/script.sh ${SSH_USER}@${SSH_KNOWN_HOSTS}:/home/${SSH_USER}/
-  
-    - name: Build and deploy
-      run: |
-        echo "$SSH_PEM_KEY" > $HOME/key.pem
-        chmod 600 $HOME/key.pem
-        ssh -i $HOME/key.pem -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_KNOWN_HOSTS} '~/script.sh'
-      env:
-        SSH_USER: ${{secrets.EC2_USER}}
-        SSH_KNOWN_HOSTS: ${{secrets.EC2_HOST}}
-        SSH_PEM_KEY: ${{secrets.EC2_KEY}}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+     - name: EC2 Deploy
+       env:
+         EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+         EC2_HOST: ${{ secrets.EC2_HOST }}
+         EC2_USER: ${{ secrets.EC2_USER }}
+       run: |
+          # SSH Key 파일 생성
+          echo "$EC2_SSH_PRIVATE_KEY" > ec2_ssh_key
+          chmod 600 ec2_ssh_key
+          
+          # 패키지 파일을 EC2 인스턴스로 복사
+          scp -i ec2_ssh_key -o StrictHostKeyChecking=no build/libs/easyLeadServer-0.0.1-SNAPSHOT.jar ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/easylead-server
+          
+          # 인스턴스에서 JAR 파일 실행
+          ssh -i ec2_ssh_key -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "pgrep java | xargs kill -9; nohup java -jar /home/${EC2_USER}/easylead-server/easyLeadServer-0.0.1-SNAPSHOT.jar > /home/${EC2_USER}/easylead-server/log/app.log 2>&1 &"
