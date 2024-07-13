@@ -6,6 +6,7 @@ import com.easylead.easylead.domain.gpt.dto.ResponseDTO;
 import com.easylead.easylead.domain.gpt.service.GptService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import java.net.http.HttpRequest;
 
@@ -21,4 +22,7 @@ public class GptBusiness {
     }
 
 
+    public Flux<String> ask(String text) throws JsonProcessingException {
+        return gptService.askStream(text);
+    }
 }
