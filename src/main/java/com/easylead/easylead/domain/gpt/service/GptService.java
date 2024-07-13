@@ -1,5 +1,7 @@
 package com.easylead.easylead.domain.gpt.service;
 
+import com.easylead.easylead.common.error.ErrorCode;
+import com.easylead.easylead.common.exception.ApiException;
 import com.easylead.easylead.domain.gpt.dto.ChatGPTRequestDTO;
 import com.easylead.easylead.domain.gpt.dto.ChatGPTResponseDTO;
 import com.easylead.easylead.domain.gpt.dto.Choice;
@@ -94,14 +96,15 @@ public class GptService {
         HttpResponse<String> response = null;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
         System.out.println(response.body());
         ObjectMapper objectMapper = new ObjectMapper();
         ChatGPTResponseDTO chatGPTResponseDTO = objectMapper.readValue(response.body(), ChatGPTResponseDTO.class);
+        if(chatGPTResponseDTO.getChoices() ==null){
+            throw new ApiException(ErrorCode.SERVER_ERROR);
+        }
         List<Choice> choices = chatGPTResponseDTO.getChoices();
 
         String content = choices.get(0).getMessage().getContent();
