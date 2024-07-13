@@ -68,8 +68,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         aws deploy create-deployment \
-        --application-name codedeploy-easylead\
+        --application-name codedeploy-easylead \
         --deployment-group-name easylead \
         --file-exists-behavior OVERWRITE \
-        --s3-location bucket=easy-lead-bucket,bundleType=zip,key=easylead.zip \ 
+        --s3-location bucket=easy-lead-bucket,bundleType=zip,key=easylead.zip \
         --region ap-northeast-2
