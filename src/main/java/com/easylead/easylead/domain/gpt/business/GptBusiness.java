@@ -1,9 +1,12 @@
 package com.easylead.easylead.domain.gpt.business;
 
 import com.easylead.easylead.common.annotation.Business;
+import com.easylead.easylead.domain.gpt.convertor.GptConverter;
+import com.easylead.easylead.domain.gpt.dto.ResponseDTO;
 import com.easylead.easylead.domain.gpt.service.GptService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import java.net.http.HttpRequest;
 
@@ -11,11 +14,15 @@ import java.net.http.HttpRequest;
 @RequiredArgsConstructor
 public class GptBusiness {
     private final GptService gptService;
-    public String getEasyToRead(String text) throws JsonProcessingException {
+    private final GptConverter gptConverter;
+    public ResponseDTO getEasyToRead(String text) throws JsonProcessingException {
 
         HttpRequest request = gptService.requestGPT(text);
-        return gptService.responseGPT(request);
+        return gptConverter.toResponseDTO(gptService.responseGPT(request));
     }
 
 
+    public Flux<String> ask(String text) throws JsonProcessingException {
+        return gptService.askStream(text);
+    }
 }
