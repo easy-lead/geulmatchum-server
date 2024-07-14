@@ -40,5 +40,12 @@ public class GptController {
         }
     }
 
+    @GetMapping("/custom")
+    public ResponseEntity<ResponseDTO> easyLeadCustom(@RequestParam String text)
+        throws JsonProcessingException {
+        return ResponseEntity.ok(gptBusiness.getEasyToReadCustom(text));
+
+    }
+
 
 }
