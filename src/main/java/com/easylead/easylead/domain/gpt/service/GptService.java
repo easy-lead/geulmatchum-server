@@ -32,6 +32,9 @@ public class GptService {
     @Value("${gpt.api_key}")
 
     private String gptApiKey;
+
+    @Value("${gpt.api_key_custom}")
+    private String gptApiCustomkey;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE );
@@ -192,5 +195,30 @@ public class GptService {
                 .retrieve()
                 .bodyToFlux(String.class);
         return eventStream;
+    }
+
+    public HttpRequest requestGPTCustom(String text) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Message> messages = new ArrayList<>();
+        // Assistant API 사용할지 Prompt를 변경할지 선택하기
+        // 시스템 역할 설정
+        messages.add(new Message(text, "user"));
+
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0125:personal::9klL6p0E", messages, 0.3,false);
+        String input = null;
+        input = mapper.writeValueAsString(chatGptRequest);
+        System.out.println(input);
+        System.out.println("apikey : " + gptApiCustomkey);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", "Bearer " + gptApiCustomkey)
+            .POST(HttpRequest.BodyPublishers.ofString(input))
+            .build();
+
+        return request;
+
+
     }
 }
