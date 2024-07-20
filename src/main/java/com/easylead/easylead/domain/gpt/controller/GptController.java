@@ -47,5 +47,11 @@ public class GptController {
 
     }
 
+    @GetMapping("/image")
+    public ResponseEntity<ResponseDTO> ImageGenerate(@RequestParam String keyword)
+        throws JsonProcessingException {
+        return ResponseEntity.ok(gptBusiness.getImage(keyword));
+    }
+
 
 }
