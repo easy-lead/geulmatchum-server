@@ -221,4 +221,51 @@ public class GptService {
 
 
     }
+
+    public HttpRequest requestGPTImage(String keyword) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Message> messages = new ArrayList<>();
+
+        messages.add(new Message(keyword, "user"));
+
+        DalleRequestDTO dalleRequest = new DalleRequestDTO("dall-e-3", keyword, 1,"1024x1024");
+        String input = null;
+        input = mapper.writeValueAsString(dalleRequest);
+        System.out.println(input);
+        System.out.println("apikey : " + gptApiCustomkey);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.openai.com/v1/images/generations"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", "Bearer " + gptApiCustomkey)
+            .POST(HttpRequest.BodyPublishers.ofString(input))
+            .build();
+
+        return request;
+
+    }
+
+    public String responseDalle(HttpRequest request) throws JsonProcessingException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(response.body());
+        ObjectMapper objectMapper = new ObjectMapper();
+        DalleResponseDTO dalleResponseDTO = objectMapper.readValue(response.body(), DalleResponseDTO.class);
+        if(dalleResponseDTO.getData() ==null){
+            throw new ApiException(ErrorCode.SERVER_ERROR);
+        }
+        List<DalleResData> data = dalleResponseDTO.getData();
+
+        String url = data.get(0).getUrl();
+        String subject = "";
+
+        System.out.println("content = " + url);
+        return url;
+
+    }
 }

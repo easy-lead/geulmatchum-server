@@ -30,4 +30,9 @@ public class GptBusiness {
         HttpRequest request = gptService.requestGPTCustom(text);
         return gptConverter.toResponseDTO(gptService.responseGPT(request));
     }
+
+    public ResponseDTO getImage(String keyword) throws JsonProcessingException {
+        HttpRequest request = gptService.requestGPTImage(keyword);
+        return gptConverter.toResponseDTO(gptService.responseDalle(request));
+    }
 }
