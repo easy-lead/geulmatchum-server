@@ -14,9 +14,9 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[글맞춤 프로토타입 바로가기](https://easy-read-fe.vercel.app/ )
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[글맞춤 프론트엔드 Repository](https://github.com/easy-lead/easy-lead-fe, "geulmatchum-fe")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[글맞춤 프론트엔드 Repository](https://github.com/easy-lead/easy-lead-fe)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[글맞춤 AI Repository](https://github.com/easy-lead/easy-lead-ai, "geulmatchum-ai")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[글맞춤 AI Repository](https://github.com/easy-lead/easy-lead-ai)
 
 ## 🎨 **Design**
 
