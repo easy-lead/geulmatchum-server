@@ -26,8 +26,12 @@ public class GptBusiness {
         return gptService.askStream(text);
     }
 
-    public ResponseDTO getEasyToReadCustom(String text) throws JsonProcessingException {
-        HttpRequest request = gptService.requestGPTCustom(text);
-        return gptConverter.toResponseDTO(gptService.responseGPT(request));
+    public Flux<String> getEasyToReadCustom(String text) throws JsonProcessingException {
+        return gptService.askCustomStream(text);
+    }
+
+    public ResponseDTO getImage(String keyword) throws JsonProcessingException {
+        HttpRequest request = gptService.requestGPTImage(keyword);
+        return gptConverter.toResponseDTO(gptService.responseDalle(request));
     }
 }
