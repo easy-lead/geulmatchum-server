@@ -196,6 +196,32 @@ public class GptService {
                 .bodyToFlux(String.class);
         return eventStream;
     }
+    public Flux<String> askCustomStream(String text) throws JsonProcessingException {
+        WebClient client = WebClient.builder()
+            .baseUrl(GptConfig.CHAT_URL)
+            .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .defaultHeader(GptConfig.AUTHORIZATION, GptConfig.BEARER + gptApiCustomkey)
+            .build();
+
+        List<Message> messages = new ArrayList<>();
+
+        messages.add(new Message(text,"user"));
+
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO(
+            GptConfig.CHAT_MODEL_CUSTOM,
+            messages,
+            GptConfig.TEMPERATURE,
+            GptConfig.STREAM
+        );
+        String requestValue = objectMapper.writeValueAsString(chatGptRequest);
+
+        Flux<String> eventStream = client.post()
+            .bodyValue(requestValue)
+            .accept(MediaType.TEXT_EVENT_STREAM)
+            .retrieve()
+            .bodyToFlux(String.class);
+        return eventStream;
+    }
 
     public HttpRequest requestGPTCustom(String text) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -204,7 +230,7 @@ public class GptService {
         // 시스템 역할 설정
         messages.add(new Message(text, "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0125:personal::9klL6p0E", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0125:personal::9ldfWO0p", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
@@ -268,4 +294,5 @@ public class GptService {
         return url;
 
     }
+
 }
