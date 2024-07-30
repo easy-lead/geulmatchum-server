@@ -61,8 +61,10 @@ public class GoogleVisionService {
             return exception.getMessage();
         }
     }
-    public String detectDocumentsGcs(String gcsSourcePath, String gcsDestinationPath)
+    public List<String> detectDocumentsGcs(String gcsSourcePath, String gcsDestinationPath)
             throws Exception {
+        List<String> reqList = new ArrayList<>();
+        StringBuilder fullText = new StringBuilder();
 
 
         AnnotateImageResponse annotateImageResponse = null;
@@ -131,38 +133,46 @@ public class GoogleVisionService {
                 for (Blob blob : pageList.iterateAll()) {
                     System.out.println(blob.getName());
 
+                    String jsonContents = new String(blob.getContent());
+                    AnnotateFileResponse.Builder builder = AnnotateFileResponse.newBuilder();
+                    JsonFormat.parser().merge(jsonContents, builder);
+
+                    AnnotateFileResponse annotateFileResponse = builder.build();
+                    for (AnnotateImageResponse a : annotateFileResponse.getResponsesList()) {
+                        reqList.add(a.getFullTextAnnotation().getText());
+                    }
                     // Process the first System.output file from GCS.
                     // Since we specified batch size = 2, the first response contains
                     // the first two pages of the input file.
-                    if (firstOutputFile == null) {
-                        firstOutputFile = blob;
-                    }
+//                    if (firstOutputFile == null) {
+//                        firstOutputFile = blob;
+//                    }
                 }
 
                 // Get the contents of the file and convert the JSON contents to an AnnotateFileResponse
                 // object. If the Blob is small read all its content in one request
                 // (Note: the file is a .json file)
                 // Storage guide: https://cloud.google.com/storage/docs/downloading-objects
-                String jsonContents = new String(firstOutputFile.getContent());
-                AnnotateFileResponse.Builder builder = AnnotateFileResponse.newBuilder();
-                JsonFormat.parser().merge(jsonContents, builder);
-
-                // Build the AnnotateFileResponse object
-                AnnotateFileResponse annotateFileResponse = builder.build();
+//                String jsonContents = new String(firstOutputFile.getContent());
+//                AnnotateFileResponse.Builder builder = AnnotateFileResponse.newBuilder();
+//                JsonFormat.parser().merge(jsonContents, builder);
+//
+//                // Build the AnnotateFileResponse object
+//                AnnotateFileResponse annotateFileResponse = builder.build();
 
                 // Parse through the object to get the actual response for the first page of the input file.
-                annotateImageResponse = annotateFileResponse.getResponses(0);
+//                annotateImageResponse = annotateFileResponse.getResponses(0);
 
                 // Here we print the full text from the first page.
                 // The response contains more information:
                 // annotation/pages/blocks/paragraphs/words/symbols
                 // including confidence score and bounding boxes
-                System.out.format("%nText: %s%n", annotateImageResponse.getFullTextAnnotation().getText());
+
             } else {
                 System.out.println("No MATCH");
             }
         }
-        return annotateImageResponse.getFullTextAnnotation().getText();
+        return reqList;
     }
 
 }

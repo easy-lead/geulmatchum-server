@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.net.http.HttpRequest;
+import java.util.List;
 import java.util.Objects;
 
 @Business
@@ -35,13 +36,17 @@ public class TextBusiness {
             throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
         }
 
-        String reqText = textService.detectTextPDF(file);
+        List<String> reqText = textService.detectTextPDF(file);
 
         log.info("=========== reqText : "+reqText+"============");
 
-        HttpRequest request = gptService.requestGPTCustom(reqText);
+        StringBuilder result = new StringBuilder();
+        for(String text : reqText){
+            HttpRequest request = gptService.requestGPTCustom(text);
+            result.append(gptService.responseGPT(request));
+        }
+        return textConverter.toTextFileResDTO(result.toString());
 
-        return textConverter.toTextFileResDTO(gptService.responseGPT(request));
     }
     public Flux<String> easyToReadImage(MultipartFile file) throws JsonProcessingException {
         if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
