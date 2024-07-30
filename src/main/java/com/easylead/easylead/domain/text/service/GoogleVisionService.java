@@ -14,6 +14,7 @@ import org.springframework.util.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -122,15 +123,19 @@ public class GoogleVisionService {
                 String bucketName = matcher.group(1);
                 String prefix = matcher.group(2);
 
-                // Get the list of objects with the given prefix from the GCS bucket
+                // GCS 버킷에서 주어진 접두어로 객체 목록 가져오기
                 Bucket bucket = storage.get(bucketName);
                 com.google.api.gax.paging.Page<Blob> pageList = bucket.list(Storage.BlobListOption.prefix(prefix));
 
-                Blob firstOutputFile = null;
+                List<Blob> blobList = new ArrayList<>();
+                pageList.iterateAll().forEach(blobList::add);
 
-                // List objects with the given prefix.
-                System.out.println("Output files:");
-                for (Blob blob : pageList.iterateAll()) {
+                // 파일 이름에서 숫자를 추출하여 정렬하기
+                blobList.sort(Comparator.comparingInt(blob -> extractPageNumber(blob.getName())));
+
+                // 정렬된 파일 목록을 출력
+                System.out.println("출력 파일들:");
+                for (Blob blob : blobList) {
                     System.out.println(blob.getName());
 
                     String jsonContents = new String(blob.getContent());
@@ -141,38 +146,23 @@ public class GoogleVisionService {
                     for (AnnotateImageResponse a : annotateFileResponse.getResponsesList()) {
                         reqList.add(a.getFullTextAnnotation().getText());
                     }
-                    // Process the first System.output file from GCS.
-                    // Since we specified batch size = 2, the first response contains
-                    // the first two pages of the input file.
-//                    if (firstOutputFile == null) {
-//                        firstOutputFile = blob;
-//                    }
+
                 }
 
-                // Get the contents of the file and convert the JSON contents to an AnnotateFileResponse
-                // object. If the Blob is small read all its content in one request
-                // (Note: the file is a .json file)
-                // Storage guide: https://cloud.google.com/storage/docs/downloading-objects
-//                String jsonContents = new String(firstOutputFile.getContent());
-//                AnnotateFileResponse.Builder builder = AnnotateFileResponse.newBuilder();
-//                JsonFormat.parser().merge(jsonContents, builder);
-//
-//                // Build the AnnotateFileResponse object
-//                AnnotateFileResponse annotateFileResponse = builder.build();
-
-                // Parse through the object to get the actual response for the first page of the input file.
-//                annotateImageResponse = annotateFileResponse.getResponses(0);
-
-                // Here we print the full text from the first page.
-                // The response contains more information:
-                // annotation/pages/blocks/paragraphs/words/symbols
-                // including confidence score and bounding boxes
 
             } else {
                 System.out.println("No MATCH");
             }
         }
         return reqList;
+    }
+    private int extractPageNumber(String fileName) {
+        Pattern pattern = Pattern.compile("output-(\\d+)-to-\\d+\\.json");
+        Matcher matcher = pattern.matcher(fileName);
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return Integer.MAX_VALUE; // 패턴이 일치하지 않을 경우 높은 값 반환
     }
 
 }
