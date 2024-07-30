@@ -39,6 +39,17 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //이미지 저장을 위한 s3의존성
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+
+    //ocr을 위한 goolge vision 의존성
+    implementation 'com.google.cloud:google-cloud-vision:3.44.0'
+    implementation 'com.google.cloud:google-cloud-storage:2.10.0'
+
+    //health check를 위한 의존성
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 }
 
 tasks.named('test') {

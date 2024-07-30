@@ -1,21 +1,22 @@
 package com.easylead.easylead.domain.books.entity;
 
-import com.easylead.easylead.common.entity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
 import static lombok.AccessLevel.PROTECTED;
 
 @NoArgsConstructor(access = PROTECTED)
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Getter
-public class Book extends BaseEntity {
+public class Book {
+    @Id
+    private String ISBN;
     private String title;
     private String writer;
     private String publisher;
