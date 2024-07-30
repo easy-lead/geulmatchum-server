@@ -5,7 +5,6 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +17,7 @@ public class GoogleStorageService {
     private final Storage storage = StorageOptions.getDefaultInstance().getService();
     private final String bucketName = "geulmatchum-file";
 
-    public String uploadFile(MultipartFile file) {
+    public Blob uploadFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         Blob blob = null;
         try {
@@ -29,14 +28,14 @@ public class GoogleStorageService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return blob.getSelfLink(); // Return the file's public URL
+        return blob; // Return the file's public URL
     }
 
     public String getGcsSourcePath(MultipartFile file) {
         // Upload the file and get its public URL
-        String publicUrl = uploadFile(file);
+        Blob blob = uploadFile(file);
         // Convert the public URL to gcsSourcePath
-        return publicUrl.replace("https://storage.googleapis.com/", "gs://");
+        return "gs://" + blob.getBucket() + "/" + blob.getName();
     }
 
     public String getGcsDestinationPath(String fileName) {

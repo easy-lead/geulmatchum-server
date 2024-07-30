@@ -30,7 +30,7 @@ public class TextBusiness {
     private final TextConverter textConverter;
 
 
-    public TextFileResDTO easyToRead(MultipartFile file) throws JsonProcessingException {
+    public TextFileResDTO easyToRead(MultipartFile file) throws Exception {
         if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
             throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
         }

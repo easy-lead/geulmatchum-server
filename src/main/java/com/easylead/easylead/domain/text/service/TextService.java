@@ -15,16 +15,17 @@ public class TextService {
     private final GoogleVisionService googleVisionService;
     private final GoogleStorageService googleStorageService;
 
-    public String detectTextPDF(MultipartFile file){
+    public String detectTextPDF(MultipartFile file) throws Exception {
         String gcsSourcePath = googleStorageService.getGcsSourcePath(file);
         log.info("=========gcsSourcePath : "+gcsSourcePath+"==============");
         String gcsDestinationPath = googleStorageService.getGcsDestinationPath(file.getOriginalFilename());
+        String reqtext = googleVisionService.detectDocumentsGcs(gcsSourcePath,gcsDestinationPath);
 
-        return null;
+        return reqtext;
     }
 
     public String detectTextImage(MultipartFile file) {
         String imgUrl = s3Service.uploadImage(file);
-        return googleVisionService.detechString(imgUrl);
+        return googleVisionService.detechStringImage(imgUrl);
     }
 }

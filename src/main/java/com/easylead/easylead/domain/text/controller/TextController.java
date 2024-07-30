@@ -38,7 +38,7 @@ public class TextController {
     }
 
     @PostMapping("/file")
-    public ResponseEntity<TextFileResDTO> easyToReadFile(@RequestPart(value = "file") MultipartFile file) throws JsonProcessingException {
+    public ResponseEntity<TextFileResDTO> easyToReadFile(@RequestPart(value = "file") MultipartFile file) throws Exception {
         return ResponseEntity.ok(textBusiness.easyToRead(file));
     }
 
