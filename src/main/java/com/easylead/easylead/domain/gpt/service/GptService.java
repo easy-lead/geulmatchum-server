@@ -205,6 +205,22 @@ public class GptService {
 
         List<Message> messages = new ArrayList<>();
 
+        // 시스템 역할 설정
+        messages.add(new Message("\"너는 입력받은 한국어를 쉬운 한국어로 변환해주는 도우미야. " +
+                "다음 조건들을 모두 충족하는 내용으로 변환해서 알려줘. \\\\n " +
+                "1. 입력받은 한국어 문장을 이해하기 쉬운 한국어 문장으로 변환해줘. " +
+                "2. 문장은 간결하게, 한 문장이 길어지면 두 문장으로 나눠서 변환해줘. " +
+                "3. 꾸미는 말 빼고, 이어진 문장은 두 개의 문장으로 변환해줘. " +
+                "4. 주어를 중심으로 알기 쉽게 변환해줘. " +
+                "5. 최대한 능동형 문장으로, 서술식의 구어체(-합니다, -입니다)로 변환해줘. " +
+                "6. 추상적 표현과 비유는 자제하도록 해. " +
+                "7. 이중부정 문장은 이해하기 쉬운 문장으로 바꿔. " +
+                "8. 한 문장에 한 줄씩 적어야해. " +
+                "9. 대화문은 문장 전후로 한 줄 띄어줘. " +
+                "10. 단어는 일상생활에서 자주 쓰는, 가능한 짧고 이해하기 쉬운 단어로 사용하도록 해. " +
+                "11. 한자어나 외국어를 풀어서 쉬운 말로 변환해. " +
+                "12. 약어가 있으면 다음 문장에 설명을 추가해.", "system"));
+
         messages.add(new Message(text,"user"));
 
         ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO(
@@ -228,9 +244,24 @@ public class GptService {
         List<Message> messages = new ArrayList<>();
         // Assistant API 사용할지 Prompt를 변경할지 선택하기
         // 시스템 역할 설정
+        messages.add(new Message("\"너는 입력받은 한국어를 쉬운 한국어로 변환해주는 도우미야. " +
+                "다음 조건들을 모두 충족하는 내용으로 변환해서 알려줘. \\\\n " +
+                "1. 입력받은 한국어 문장을 이해하기 쉬운 한국어 문장으로 변환해줘. " +
+                "2. 문장은 간결하게, 한 문장이 길어지면 두 문장으로 나눠서 변환해줘. " +
+                "3. 꾸미는 말 빼고, 이어진 문장은 두 개의 문장으로 변환해줘. " +
+                "4. 주어를 중심으로 알기 쉽게 변환해줘. " +
+                "5. 최대한 능동형 문장으로, 서술식의 구어체(-합니다, -입니다)로 변환해줘. " +
+                "6. 추상적 표현과 비유는 자제하도록 해. " +
+                "7. 이중부정 문장은 이해하기 쉬운 문장으로 바꿔. " +
+                "8. 한 문장에 한 줄씩 적어야해. " +
+                "9. 대화문은 문장 전후로 한 줄 띄어줘. " +
+                "10. 단어는 일상생활에서 자주 쓰는, 가능한 짧고 이해하기 쉬운 단어로 사용하도록 해. " +
+                "11. 한자어나 외국어를 풀어서 쉬운 말로 변환해. " +
+                "12. 약어가 있으면 다음 문장에 설명을 추가해.", "system"));
+
         messages.add(new Message(text, "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0125:personal::9ldfWO0p", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0613:personal::9prSIgJ8", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
@@ -296,4 +327,28 @@ public class GptService {
     }
 
 
+    public HttpRequest requestImgPrompt(String reqText) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Message> messages = new ArrayList<>();
+        // Assistant API 사용할지 Prompt를 변경할지 선택하기
+        // 시스템 역할 설정
+        messages.add(new Message("너는 동화책 삽화에 대해 잘알고, 내용에 중요한 부분을 삽화 프롬프트로 작성할 수 있는 전문가야. ", "system"));
+
+        messages.add(new Message(reqText+"\n\n 이 내용을 토대로 동화책 삽화 1개만 그리고 싶어. 따뜻한 느낌의 동화책에 맞는 그림체로 삽화 만드는 프롬프트 작성해줘 ", "user"));
+
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
+        String input = null;
+        input = mapper.writeValueAsString(chatGptRequest);
+        System.out.println(input);
+        System.out.println("apikey : " + gptApiKey);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + gptApiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(input))
+                .build();
+
+        return request;
+    }
 }
