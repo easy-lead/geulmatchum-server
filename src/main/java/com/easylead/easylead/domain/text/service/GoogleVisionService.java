@@ -52,4 +52,5 @@ public class GoogleVisionService {
             return exception.getMessage();
         }
     }
+
 }

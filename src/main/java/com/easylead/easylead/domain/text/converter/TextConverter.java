@@ -7,9 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Converter
 @RequiredArgsConstructor
 public class TextConverter {
-    public TextFileResDTO toTextFileResDTO(String resText, String imgUrl) {
+    public TextFileResDTO toTextFileResDTO(String resText) {
         return TextFileResDTO.builder()
-                .img(imgUrl)
                 .text(resText)
                 .build();
     }

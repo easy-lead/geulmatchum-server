@@ -59,10 +59,10 @@ public class S3Service {
             throw new ApiException(ErrorCode.NO_FILE_EXTENTION);
         }
 
-        String extention = filename.substring(lastDotIndex + 1).toLowerCase();
+        String extension = filename.substring(lastDotIndex + 1).toLowerCase();
         List<String> allowedExtentionList = Arrays.asList("jpg", "jpeg", "png", "gif");
 
-        if (!allowedExtentionList.contains(extention)) {
+        if (!allowedExtentionList.contains(extension)) {
             throw new ApiException(ErrorCode.INVALID_FILE_EXTENTION);
         }
     }

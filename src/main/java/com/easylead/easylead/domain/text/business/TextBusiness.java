@@ -6,11 +6,14 @@ import com.easylead.easylead.common.exception.ApiException;
 import com.easylead.easylead.domain.gpt.service.GptService;
 import com.easylead.easylead.domain.text.converter.TextConverter;
 import com.easylead.easylead.domain.text.dto.TextFileResDTO;
+import com.easylead.easylead.domain.text.service.GoogleVisionService;
+import com.easylead.easylead.domain.text.service.S3Service;
 import com.easylead.easylead.domain.text.service.TextService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
 import java.net.http.HttpRequest;
 import java.util.Objects;
@@ -22,6 +25,8 @@ public class TextBusiness {
 
     private final TextService textService;
     private final GptService gptService;
+    private final S3Service s3Service;
+    private final GoogleVisionService googleVisionService;
     private final TextConverter textConverter;
 
 
@@ -29,20 +34,25 @@ public class TextBusiness {
         if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
             throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
         }
-        String fileUrl = textService.uploadFile(file);
 
-        log.info("=========== fileUrl : "+fileUrl+"============");
-
-        String reqText = textService.detectTextImage(fileUrl);
+        String reqText = textService.detectTextPDF(file);
 
         log.info("=========== reqText : "+reqText+"============");
 
         HttpRequest request = gptService.requestGPTCustom(reqText);
 
-//        HttpRequest requestImgPrompt = gptService.requestImgPrompt(reqText);
-//        String prompt = gptService.responseGPT(requestImgPrompt);
-//        HttpRequest requestImg = gptService.requestGPTImage(prompt);
-//        String imgUrl = gptService.responseDalle(requestImg);
-        return textConverter.toTextFileResDTO(gptService.responseGPT(request),"imgUrl");
+        return textConverter.toTextFileResDTO(gptService.responseGPT(request));
+    }
+    public Flux<String> easyToReadImage(MultipartFile file) throws JsonProcessingException {
+        if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
+            throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
+        }
+
+        String reqText = textService.detectTextImage(file);
+
+        log.info("=========== reqText : "+reqText+"============");
+
+
+        return gptService.askCustomStream(reqText);
     }
 }

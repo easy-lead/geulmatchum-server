@@ -9,5 +9,4 @@ import lombok.*;
 @Builder
 public class TextFileResDTO {
     String text;
-    String img;
 }
