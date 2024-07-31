@@ -28,11 +28,6 @@ public class Request {
     @JoinColumn(name = "user_id")
     private Users readUser;
 
-    @ManyToOne(fetch = LAZY)
-    @MapsId("ISBN")
-    @JoinColumn(name = "ISBN")
-    private Book book;
-
     @Enumerated(EnumType.STRING)
     private Progress progress;
 
@@ -42,5 +37,10 @@ public class Request {
 
     @UpdateTimestamp
     private LocalDateTime updateAt;
+
+    private String title;
+    private String cover;
+    private String author;
+    private String publisher;
 
 }

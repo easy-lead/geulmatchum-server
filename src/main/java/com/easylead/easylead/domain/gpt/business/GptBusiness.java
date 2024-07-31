@@ -1,7 +1,7 @@
 package com.easylead.easylead.domain.gpt.business;
 
 import com.easylead.easylead.common.annotation.Business;
-import com.easylead.easylead.domain.gpt.convertor.GptConverter;
+import com.easylead.easylead.domain.gpt.converter.GptConverter;
 import com.easylead.easylead.domain.gpt.dto.ResponseDTO;
 import com.easylead.easylead.domain.gpt.service.GptService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,12 +31,11 @@ public class GptBusiness {
     }
 
     public ResponseDTO getImage(String keyword) throws JsonProcessingException {
-        HttpRequest request = gptService.requestGPTImage(keyword);
+        HttpRequest requestImgPrompt = gptService.requestImgPrompt(keyword);
+        String reqText = gptService.responseGPT(requestImgPrompt);
+        System.out.println("==================reqText : "+reqText);
+        HttpRequest request = gptService.requestGPTImage(reqText);
         return gptConverter.toResponseDTO(gptService.responseDalle(request));
     }
 
-    public ResponseDTO getImage(String keyword) throws JsonProcessingException {
-        HttpRequest request = gptService.requestGPTImage(keyword);
-        return gptConverter.toResponseDTO(gptService.responseDalle(request));
-    }
 }

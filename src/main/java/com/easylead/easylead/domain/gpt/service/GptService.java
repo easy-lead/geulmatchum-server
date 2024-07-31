@@ -332,9 +332,10 @@ public class GptService {
         List<Message> messages = new ArrayList<>();
         // Assistant API 사용할지 Prompt를 변경할지 선택하기
         // 시스템 역할 설정
-        messages.add(new Message("너는 동화책 삽화에 대해 잘알고, 내용에 중요한 부분을 삽화 프롬프트로 작성할 수 있는 전문가야. ", "system"));
+        messages.add(new Message("너는 아이콘을 어떻게 만들어야 하는 줄 알고, 내용에 중요한 부분을 아이콘 프롬프트로 작성할 수 있는 전문가야. ", "system"));
 
-        messages.add(new Message(reqText+"\n\n 이 내용을 토대로 동화책 삽화 1개만 그리고 싶어. 따뜻한 느낌의 동화책에 맞는 그림체로 삽화 만드는 프롬프트 작성해줘 ", "user"));
+        messages.add(new Message(reqText+"\n\n 이 내용을 이해하기 쉽게 표현할 수 있는 아이콘 1개를 그리고 싶어. 아이콘에 글자는 없어야 돼." +
+                " 따뜻한 느낌의 그림체로 아이콘을 만드는 영어 프롬프트 작성해줘. 아이콘에 글자는 포함되면 안돼. ", "user"));
 
         ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
         String input = null;
