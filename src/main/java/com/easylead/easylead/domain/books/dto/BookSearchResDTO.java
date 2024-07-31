@@ -1,21 +1,18 @@
-package com.easylead.easylead.domain.books.entity;
+package com.easylead.easylead.domain.books.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.util.Date;
 
-import static lombok.AccessLevel.PROTECTED;
-
-@NoArgsConstructor(access = PROTECTED)
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@Entity
 @Getter
-public class Book {
-    @Id
+@Setter
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BookSearchResDTO {
     private String ISBN;
     private String title;
     private String author;
@@ -24,5 +21,5 @@ public class Book {
     private Date pubDate;
     private String description;
     private String categoryName;
-
+    private String status;
 }

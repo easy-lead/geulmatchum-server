@@ -40,13 +40,12 @@ public class TextBusiness {
 
         log.info("=========== reqText : "+reqText+"============");
 
-//        StringBuilder result = new StringBuilder();
-//        for(String text : reqText){
-//            HttpRequest request = gptService.requestGPTCustom(text);
-//            result.append(gptService.responseGPT(request));
-//        }
-//        return textConverter.toTextFileResDTO(result.toString());
-        return null;
+        StringBuilder result = new StringBuilder();
+        for(String text : reqText){
+            HttpRequest request = gptService.requestGPTCustom(text);
+            result.append(gptService.responseGPT(request));
+        }
+        return textConverter.toTextFileResDTO(result.toString());
 
     }
     public Flux<String> easyToReadImage(MultipartFile file) throws JsonProcessingException {
