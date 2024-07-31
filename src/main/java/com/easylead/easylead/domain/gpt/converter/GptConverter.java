@@ -1,4 +1,4 @@
-package com.easylead.easylead.domain.gpt.convertor;
+package com.easylead.easylead.domain.gpt.converter;
 
 import com.easylead.easylead.common.annotation.Converter;
 import com.easylead.easylead.domain.gpt.dto.ResponseDTO;
