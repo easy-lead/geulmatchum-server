@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -24,5 +26,11 @@ public class RequestService {
 
     public void insertRequest(Request request) {
         requestRepository.save(request);
+    }
+
+    public Request findByISBN(String isbn) {
+        List<Request> requestList = requestRepository.findByRequestIdISBN(isbn);
+        System.out.println(requestList.size());
+        return requestList.get(0);
     }
 }

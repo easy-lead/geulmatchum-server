@@ -3,6 +3,7 @@ package com.easylead.easylead.domain.content.entity;
 import com.easylead.easylead.domain.books.entity.Book;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @AllArgsConstructor
 @Entity
 @Getter
+@Builder
+
 public class Content {
     @EmbeddedId
     private ContentId contentId;
@@ -21,6 +24,8 @@ public class Content {
     @JoinColumn(name = "ISBN")
     private Book book;
 
+    @Column(columnDefinition = "text")
     private String pageContent;
+    @Column(columnDefinition = "text")
     private String pageImg;
 }

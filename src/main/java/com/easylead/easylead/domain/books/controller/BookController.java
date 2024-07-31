@@ -2,6 +2,7 @@ package com.easylead.easylead.domain.books.controller;
 
 import com.easylead.easylead.domain.books.business.BookBusiness;
 import com.easylead.easylead.domain.books.dto.BookInfoResDTO;
+import com.easylead.easylead.domain.books.dto.BookReqDTO;
 import com.easylead.easylead.domain.books.dto.BookSearchResDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,11 @@ public class BookController {
     public ResponseEntity<BookInfoResDTO> bookInfo(@RequestParam(value = "isbn") String isbn) throws JsonProcessingException, UnsupportedEncodingException {
 
         return ResponseEntity.ok(bookBusiness.bookInfo(isbn));
+    }
+
+    @PostMapping("/publish")
+    public ResponseEntity<String> easyToRead(@RequestBody BookReqDTO bookReqDTO) throws JsonProcessingException {
+        bookBusiness.easyToRead(bookReqDTO.getISBN());
+        return ResponseEntity.ok("success");
     }
 }
