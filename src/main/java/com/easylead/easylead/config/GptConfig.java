@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 public class GptConfig {
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER = "Bearer ";
-    public static final String CHAT_MODEL = "gpt-3.5-turbo";
+    public static final String CHAT_MODEL = "gpt-4o-mini";
     public static final String CHAT_MODEL_CUSTOM = "ft:gpt-3.5-turbo-0613:personal::9rJq4pTM";
     public static final Integer MAX_TOKEN = 300;
     public static final Boolean STREAM = true;

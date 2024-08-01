@@ -2,8 +2,10 @@ package com.easylead.easylead.domain.books.business;
 
 import com.easylead.easylead.common.annotation.Business;
 import com.easylead.easylead.domain.books.converter.Bookconverter;
+import com.easylead.easylead.domain.books.dto.BookContentResDTO;
 import com.easylead.easylead.domain.books.dto.BookInfoResDTO;
 import com.easylead.easylead.domain.books.dto.BookSearchResDTO;
+import com.easylead.easylead.domain.books.dto.ContentResDTO;
 import com.easylead.easylead.domain.books.entity.Book;
 import com.easylead.easylead.domain.books.entity.Origin;
 import com.easylead.easylead.domain.books.service.AladinService;
@@ -12,9 +14,14 @@ import com.easylead.easylead.domain.content.converter.ContentConverter;
 import com.easylead.easylead.domain.content.entity.Content;
 import com.easylead.easylead.domain.content.service.ContentService;
 import com.easylead.easylead.domain.gpt.service.GptService;
+import com.easylead.easylead.domain.read.entity.Read;
+import com.easylead.easylead.domain.read.entity.ReadId;
+import com.easylead.easylead.domain.read.service.ReadService;
 import com.easylead.easylead.domain.request.entity.Progress;
 import com.easylead.easylead.domain.request.entity.Request;
 import com.easylead.easylead.domain.request.service.RequestService;
+import com.easylead.easylead.domain.users.entity.Users;
+import com.easylead.easylead.domain.users.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +46,8 @@ public class BookBusiness {
     private final ContentConverter contentConverter;
     private final ContentService contentService;
     private final Bookconverter bookConverter;
+    private final UserService userService;
+    private final ReadService readService;
 
     public List<BookSearchResDTO> searchBook(String title, String author, String publisher) throws JsonProcessingException, UnsupportedEncodingException {
 
@@ -108,5 +117,36 @@ public class BookBusiness {
         requestService.update(request);
 
     }
+    @Transactional
+    public BookContentResDTO readContent(Long userId, Long pageId, String isbn) {
 
+        Long maxPage = contentService.findMaxPage(isbn);
+        List<Content> pageContent = contentService.getPageContent(pageId,isbn);
+        List<ContentResDTO> contentList = pageContent.stream().map(bookConverter::toContentResDTO).toList();
+        Users user = userService.findById(userId);
+        Read read = readService.findById(userId, isbn);
+        Book book = bookService.findByISBN(isbn);
+        if(read ==null)
+            read = Read.builder().readId(new ReadId(userId,isbn)).readUser(user).book(book).build();
+        read.updatePage(pageId);
+        readService.save(read);
+
+
+        return BookContentResDTO.builder().content(contentList).maxPage(maxPage).build();
+    }
+
+  public List<BookInfoResDTO> recentList() {
+        List<Book> bookList = bookService.getRecentList();
+        return bookList.stream().map(bookConverter::toBookInfoResDTO).toList();
+  }
+
+    public List<BookInfoResDTO> highViewList() {
+        List<Book> bookList = bookService.getHighViewList();
+        return bookList.stream().map(bookConverter::toBookInfoResDTO).toList();
+    }
+
+  public List<BookInfoResDTO> recommendList() {
+      List<Book> bookList = bookService.getRecommendList();
+      return bookList.stream().map(bookConverter::toBookInfoResDTO).toList();
+  }
 }

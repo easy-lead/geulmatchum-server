@@ -40,4 +40,8 @@ public class Read {
 
     @UpdateTimestamp
     private LocalDateTime updateAt;
+
+  public void updatePage(Long pageId) {
+      this.page = pageId;
+  }
 }
