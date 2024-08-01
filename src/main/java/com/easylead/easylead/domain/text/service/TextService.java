@@ -17,11 +17,12 @@ public class TextService {
     private final GoogleVisionService googleVisionService;
     private final GoogleStorageService googleStorageService;
 
-    public List<String> detectTextPDF(MultipartFile file) throws Exception {
+    public String detectTextPDF(MultipartFile file) throws Exception {
+
         String gcsSourcePath = googleStorageService.getGcsSourcePath(file);
         log.info("=========gcsSourcePath : "+gcsSourcePath+"==============");
         String gcsDestinationPath = googleStorageService.getGcsDestinationPath(file.getOriginalFilename());
-        List<String> reqtext = googleVisionService.detectDocumentsGcs(gcsSourcePath,gcsDestinationPath);
+        String reqtext = googleVisionService.detectDocumentsGcs(gcsSourcePath,gcsDestinationPath);
 
         return reqtext;
     }

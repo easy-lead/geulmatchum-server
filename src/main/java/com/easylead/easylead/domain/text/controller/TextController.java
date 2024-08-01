@@ -24,17 +24,13 @@ public class TextController {
     private final TextBusiness textBusiness;
 
     @PostMapping(value = "/image", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> easyToReadImage(Locale locale,
+    public ResponseEntity<TextFileResDTO> easyToReadImage(Locale locale,
                                         HttpServletRequest request,
                                         HttpServletResponse response,
                                         @RequestPart(value = "image") MultipartFile file) throws JsonProcessingException {
-        try{
-            return textBusiness.easyToReadImage(file);
 
-        }catch (JsonProcessingException je){
-            log.error(je.getMessage());
-            return Flux.empty();
-        }
+            return ResponseEntity.ok(textBusiness.easyToReadImage(file));
+
     }
 
     @PostMapping("/file")

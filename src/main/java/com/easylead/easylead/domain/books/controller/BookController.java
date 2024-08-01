@@ -1,6 +1,7 @@
 package com.easylead.easylead.domain.books.controller;
 
 import com.easylead.easylead.domain.books.business.BookBusiness;
+import com.easylead.easylead.domain.books.dto.BookContentResDTO;
 import com.easylead.easylead.domain.books.dto.BookInfoResDTO;
 import com.easylead.easylead.domain.books.dto.BookReqDTO;
 import com.easylead.easylead.domain.books.dto.BookSearchResDTO;
@@ -40,5 +41,22 @@ public class BookController {
     public ResponseEntity<String> easyToRead(@RequestBody BookReqDTO bookReqDTO) throws JsonProcessingException {
         bookBusiness.easyToRead(bookReqDTO.getISBN());
         return ResponseEntity.ok("success");
+    }
+
+    @GetMapping("/content")
+    public ResponseEntity<BookContentResDTO> bookContent(@RequestParam Long userId, Long pageId, String ISBN){
+        return ResponseEntity.ok(bookBusiness.readContent(userId,pageId,ISBN));
+    }
+    @GetMapping("/recent")
+    public ResponseEntity<List<BookInfoResDTO>> recentList(){
+        return ResponseEntity.ok(bookBusiness.recentList());
+    }
+    @GetMapping("/view")
+    public ResponseEntity<List<BookInfoResDTO>> highViewList(){
+        return ResponseEntity.ok(bookBusiness.highViewList());
+    }
+    @GetMapping("/recommend")
+    public ResponseEntity<List<BookInfoResDTO>> recommendList(){
+        return ResponseEntity.ok(bookBusiness.recommendList());
     }
 }

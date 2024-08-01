@@ -36,19 +36,19 @@ public class TextBusiness {
             throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
         }
 
-        List<String> reqText = textService.detectTextPDF(file);
+        String reqText = textService.detectTextPDF(file);
 
         log.info("=========== reqText : "+reqText+"============");
 
         StringBuilder result = new StringBuilder();
-        for(String text : reqText){
-            HttpRequest request = gptService.requestGPTCustom(text);
+
+            HttpRequest request = gptService.requestGPT(reqText,"gpt-4o-mini");
             result.append(gptService.responseGPT(request));
-        }
+
         return textConverter.toTextFileResDTO(result.toString());
 
     }
-    public Flux<String> easyToReadImage(MultipartFile file) throws JsonProcessingException {
+    public TextFileResDTO easyToReadImage(MultipartFile file) throws JsonProcessingException {
         if (file.isEmpty() || Objects.isNull(file.getOriginalFilename())) {
             throw new ApiException(ErrorCode.EMPTY_FILE_EXCEPTION);
         }
@@ -58,6 +58,7 @@ public class TextBusiness {
         log.info("=========== reqText : "+reqText+"============");
 
 
-        return gptService.askCustomStream(reqText);
+        HttpRequest request =  gptService.requestGPTCustom(reqText);
+        return TextFileResDTO.builder().text(gptService.responseGPT(request)).build();
     }
 }

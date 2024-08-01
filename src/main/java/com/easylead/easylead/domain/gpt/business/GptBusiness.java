@@ -17,7 +17,7 @@ public class GptBusiness {
     private final GptConverter gptConverter;
     public ResponseDTO getEasyToRead(String text) throws JsonProcessingException {
 
-        HttpRequest request = gptService.requestGPT(text);
+        HttpRequest request = gptService.requestGPT(text,"gpt-4o-mini");
         return gptConverter.toResponseDTO(gptService.responseGPT(request));
     }
 

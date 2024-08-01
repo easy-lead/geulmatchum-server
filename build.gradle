@@ -50,6 +50,11 @@ dependencies {
 
     //health check를 위한 의존성
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    implementation 'org.apache.commons:commons-text:1.10.0'
+    implementation 'commons-fileupload:commons-fileupload:1.4'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 tasks.named('test') {

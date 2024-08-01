@@ -1,60 +1,74 @@
 package com.easylead.easylead.domain.gpt.service;
 
-import com.easylead.easylead.common.error.ErrorCode;
-import com.easylead.easylead.common.exception.ApiException;
 import com.easylead.easylead.config.GptConfig;
-import com.easylead.easylead.domain.gpt.dto.*;
+import com.easylead.easylead.domain.gpt.dto.ChatGPTRequestDTO;
+import com.easylead.easylead.domain.gpt.dto.ChatGPTResponseDTO;
+import com.easylead.easylead.domain.gpt.dto.Choice;
+import com.easylead.easylead.domain.gpt.dto.DalleRequestDTO;
+import com.easylead.easylead.domain.gpt.dto.DalleResData;
+import com.easylead.easylead.domain.gpt.dto.DalleResponseDTO;
+import com.easylead.easylead.domain.gpt.dto.Message;
+import com.easylead.easylead.domain.text.service.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class GptService {
     @Value("${gpt.api_key}")
-
     private String gptApiKey;
 
     @Value("${gpt.api_key_custom}")
     private String gptApiCustomkey;
+
+    private final S3Service s3Service;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE );
 
 
-    public HttpRequest requestGPT(String text) throws JsonProcessingException {
+    public HttpRequest requestGPT(String text,String model) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<Message> messages = new ArrayList<>();
         // Assistant API 사용할지 Prompt를 변경할지 선택하기
         // 시스템 역할 설정
         messages.add(new Message("너는 발달장애인을 위한 읽기 쉬운책을 만들 수 있는 전문가야." +
-                "주어진 글을 아래와 같은 조건에 맞게 수정해줘. " +
-                "-누가 말했는지 이름을 표시\n" +
-                "-복합 문장 단순화(한 문장에 한 개의 내용만 있는것)\n" +
-                "- 수동형을 능동형으로 바꿔 사용\n" +
-                "- 미사여구(부사,형용사 등) 최소화\n" +
-                "- 장문을 단문으로\n" +
-                "- 이중 부정어 최소화\n" +
-                "- 서술어를 붙여 문장을 완성 \n" +
-                "- 접속어 삭제 ", "system"));
+            "주어진 글을 아래와 같은 조건에 맞게 수정해줘. " +
+            "-누가 말했는지 이름을 표시\n" +
+            "-복합 문장 단순화(한 문장에 한 개의 내용만 있는것)\n" +
+            "- 수동형을 능동형으로 바꿔 사용\n" +
+            "- 미사여구(부사,형용사 등) 최소화\n" +
+            "- 장문을 단문으로\n" +
+            "- 이중 부정어 최소화\n" +
+            "- 서술어를 붙여 문장을 완성 \n" +
+            "- 접속어 삭제 \n" +
+            "- 발화문은 '발화자의 이름': '대사' 의 형식만을 이용하여 발화자를 정확하게 표기한다. 발화문 앞 뒤로 한 줄을 띄운다."+
+            "- 어려운 단어는 다음 문장에 이해하기 쉽게 풀어서 설명\n" +
+            "- 방언이나 사투리는 표준말로 변환", "system"));
         // 사용자의 질문
         messages.add(new Message("아래 글을 발달장애인이 읽을 수 있게 읽기 쉬운 책으로 만들어줘.\n"+"그 새 아주머니와 선생님은 복도로 나가 이야기를 나누고 있었습니다. \n" +
                 "\"야, 쟤 1학년 때 5반이었지?\"\n" +
@@ -84,9 +98,9 @@ public class GptService {
                 "석우 집에서 가깝습니다.\n" +
                 "\n" +
                 "석우 : 저요", "assistant"));
-        messages.add(new Message("아래 글을 발달장애인이 읽을 수 있게 읽기 쉬운 책으로 만들어줘.\n"+text, "user"));
+        messages.add(new Message("아래 글을 발달장애인이 읽을 수 있게 읽 쉬운 책으로 만들어줘.\n"+text, "user"));
         // temperature 는 답변의 창의성을 나타냄 온도가 낮을수록 정보성의 글
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO(model, messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
@@ -143,14 +157,20 @@ public class GptService {
         // 시스템 역할 설정
         messages.add(new Message("너는 발달장애인을 위한 읽기 쉬운책을 만들 수 있는 전문가야." +
                 "주어진 글을 아래와 같은 조건에 맞게 수정해줘. " +
-                "-누가 말했는지 이름을 표시\n" +
-                "-복합 문장 단순화(한 문장에 한 개의 내용만 있는것)\n" +
-                "- 수동형을 능동형으로 바꿔 사용\n" +
-                "- 미사여구(부사,형용사 등) 최소화\n" +
-                "- 장문을 단문으로\n" +
-                "- 이중 부정어 최소화\n" +
-                "- 서술어를 붙여 문장을 완성 \n" +
-                "- 접속어 삭제 ", "system"));
+                "-누가 말했는지 이름을 표시 해줘.\n" +
+                "- 접속어는 되도록 삭제해줘" +
+                "- 입력받은 한국어 문장을 이해하기 쉬운 한국어 문장으로 변환해줘. " +
+                "- 문장은 간결하게, 한 문장이 길어지면 두 문장으로 나눠서 변환해줘. " +
+                "꾸미는 말 빼고, 이어진 문장은 두 개의 문장으로 변환해줘. " +
+                "주어를 중심으로 알기 쉽게 변환해줘. " +
+                "최대한 능동형 문장으로, 서술식의 구어체(-합니다, -입니다)로 변환해줘. " +
+                "추상적 표현과 비유는 자제하도록 해. " +
+                "이중부정 문장은 이해하기 쉬운 문장으로 바꿔. " +
+                "한 문장에 한 줄씩 적어야해. " +
+                "대화문은 문장 전후로 한 줄 띄어줘. " +
+                "단어는 일상생활에서 자주 쓰는, 가능한 짧고 이해하기 쉬운 단어로 사용하도록 해. " +
+                "한자어나 외국어를 풀어서 쉬운 말로 변환해. " +
+                "약어가 있으면 다음 문장에 설명을 추가해.", "system"));
         // 사용자의 질문
         messages.add(new Message("아래 글을 발달장애인이 읽을 수 있게 읽기 쉬운 책으로 만들어줘.\n"+"그 새 아주머니와 선생님은 복도로 나가 이야기를 나누고 있었습니다. \n" +
                 "\"야, 쟤 1학년 때 5반이었지?\"\n" +
@@ -285,7 +305,7 @@ public class GptService {
 
         messages.add(new Message("image style : disney animation style \n " + keyword, "user"));
 
-        DalleRequestDTO dalleRequest = new DalleRequestDTO("dall-e-3","image style : disney animation style \n " +  keyword, 1,"1024x1024");
+        DalleRequestDTO dalleRequest = new DalleRequestDTO("dall-e-3","image style : disney animation style \n " +  keyword, 1,"1024x1024","url");
         String input = null;
         input = mapper.writeValueAsString(dalleRequest);
         System.out.println(input);
@@ -337,7 +357,7 @@ public class GptService {
         messages.add(new Message(reqText+"\n\n 이 내용을 이해하기 쉽게 표현할 수 있는 아이콘 1개를 그리고 싶어. 아이콘에 글자는 없어야 돼." +
                 " 따뜻한 느낌의 그림체로 아이콘을 만드는 영어 프롬프트 작성해줘. 아이콘에 글자는 포함되면 안돼. ", "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4o-mini", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
@@ -362,7 +382,7 @@ public class GptService {
 
         messages.add(new Message(reqText+"\n\n 이 페이지 내용을 토대로 동화책 삽화 1개만 그리고 싶어. 따뜻한 느낌의 동화책에 맞는 그림체로 삽화 만드는 프롬프트 작성해줘 ", "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4o-mini", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
