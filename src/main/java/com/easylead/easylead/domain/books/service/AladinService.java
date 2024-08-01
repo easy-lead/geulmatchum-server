@@ -48,7 +48,7 @@ public class AladinService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?TTBKey="+aladinApiKey+
-                        "&Query="+ encodedQuery +"&Output=JS")).build();
+                        "&Query="+ encodedQuery +"&Output=JS&Cover=Big")).build();
 
         log.info(query);
 
@@ -76,7 +76,7 @@ public class AladinService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?TTBKey="+aladinApiKey+
-                        "&ItemId="+ isbn +"&Output=JS")).build();
+                        "&ItemId="+ isbn +"&Output=JS&Cover=Big")).build();
 
 
         HttpClient client = HttpClient.newHttpClient();
