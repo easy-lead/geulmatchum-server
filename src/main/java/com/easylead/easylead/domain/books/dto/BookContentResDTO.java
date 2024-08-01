@@ -14,6 +14,7 @@ import lombok.Setter;
 @Builder
 public class BookContentResDTO {
   List<ContentResDTO> content;
+  Long pageId;
   Long maxPage;
 
 }

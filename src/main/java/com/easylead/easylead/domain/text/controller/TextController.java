@@ -23,10 +23,8 @@ import java.util.Locale;
 public class TextController {
     private final TextBusiness textBusiness;
 
-    @PostMapping(value = "/image", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<TextFileResDTO> easyToReadImage(Locale locale,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response,
+    @PostMapping(value = "/image")
+    public ResponseEntity<TextFileResDTO> easyToReadImage(
                                         @RequestPart(value = "image") MultipartFile file) throws JsonProcessingException {
 
             return ResponseEntity.ok(textBusiness.easyToReadImage(file));
