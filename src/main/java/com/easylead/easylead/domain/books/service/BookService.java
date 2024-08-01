@@ -12,6 +12,8 @@ import java.net.http.HttpRequest;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +48,7 @@ public class BookService {
     public CompletableFuture<String> transformContent(String pageContent) throws JsonProcessingException {
         String easyContent = null;
         do{
-            HttpRequest requestGPT = gptService.requestGPT(pageContent);
+            HttpRequest requestGPT = gptService.requestGPT(pageContent,"gpt-4");
             easyContent = gptService.responseGPT(requestGPT);
         }while (easyContent.equals("ERROR"));
 
@@ -66,4 +68,22 @@ public class BookService {
       return CompletableFuture.completedFuture(imgUrl);
     }
 
+    public Book findByISBN(String isbn) {
+        return bookRepository.findById(isbn).orElseThrow(() -> new ApiException(ErrorCode.SERVER_ERROR));
+    }
+
+  public List<Book> getRecentList() {
+        Pageable pageable = PageRequest.of(0, 5); // 첫 번째 페이지(0), 5개의 결과
+        return bookRepository.recentBookList(pageable);
+  }
+
+    public List<Book> getHighViewList() {
+        Pageable pageable = PageRequest.of(0, 5); // 첫 번째 페이지(0), 5개의 결과
+        return bookRepository.highViewList(pageable);
+    }
+
+    public List<Book> getRecommendList() {
+        Pageable pageable = PageRequest.of(0, 5); // 첫 번째 페이지(0), 5개의 결과
+        return bookRepository.recommentList(pageable);
+    }
 }

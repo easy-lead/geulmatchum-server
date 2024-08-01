@@ -12,11 +12,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@JsonPropertyOrder({"model", "prompt", "n","size"})
+@JsonPropertyOrder({"model", "prompt", "n","size","response_format"})
 public class DalleRequestDTO {
   String model;
   String prompt;
   int n;
   String size;
+  String response_format;
 
 }

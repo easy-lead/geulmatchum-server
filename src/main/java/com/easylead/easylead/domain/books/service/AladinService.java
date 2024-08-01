@@ -47,8 +47,8 @@ public class AladinService {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?TTBKey="+aladinApiKey+
-                        "&Query="+ encodedQuery +"&Output=JS&Cover=Big")).build();
+            .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemSearch.aspx?TTBKey="+aladinApiKey+
+                "&Query="+ encodedQuery +"&Output=JS&Cover=Big")).build();
 
         log.info(query);
 
@@ -75,8 +75,8 @@ public class AladinService {
     public BookInfoResDTO search(String isbn) throws JsonProcessingException {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?TTBKey="+aladinApiKey+
-                        "&ItemId="+ isbn +"&Output=JS&Cover=Big")).build();
+            .uri(URI.create("http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?TTBKey="+aladinApiKey+
+                "&ItemId="+ isbn +"&Output=JS&Cover=Big")).build();
 
 
         HttpClient client = HttpClient.newHttpClient();
@@ -87,6 +87,7 @@ public class AladinService {
             throw new RuntimeException(e);
         }
         System.out.println(response.body());
+
         // ObjectMapper 인스턴스 생성
         ObjectMapper objectMapper = new ObjectMapper();
 

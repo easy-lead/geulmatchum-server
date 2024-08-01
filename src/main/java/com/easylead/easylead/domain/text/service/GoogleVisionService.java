@@ -62,9 +62,9 @@ public class GoogleVisionService {
             return exception.getMessage();
         }
     }
-    public List<String> detectDocumentsGcs(String gcsSourcePath, String gcsDestinationPath)
+    public String detectDocumentsGcs(String gcsSourcePath, String gcsDestinationPath)
             throws Exception {
-        List<String> reqList = new ArrayList<>();
+
         StringBuilder fullText = new StringBuilder();
 
 
@@ -144,7 +144,7 @@ public class GoogleVisionService {
 
                     AnnotateFileResponse annotateFileResponse = builder.build();
                     for (AnnotateImageResponse a : annotateFileResponse.getResponsesList()) {
-                        reqList.add(a.getFullTextAnnotation().getText());
+                        fullText.append(a.getFullTextAnnotation().getText());
                     }
 
                 }
@@ -154,7 +154,7 @@ public class GoogleVisionService {
                 System.out.println("No MATCH");
             }
         }
-        return reqList;
+        return fullText.toString();
     }
     private int extractPageNumber(String fileName) {
         Pattern pattern = Pattern.compile("output-(\\d+)-to-\\d+\\.json");
