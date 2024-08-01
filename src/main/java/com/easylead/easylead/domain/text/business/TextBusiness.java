@@ -59,6 +59,7 @@ public class TextBusiness {
 
 
         HttpRequest request =  gptService.requestGPTCustom(reqText);
-        return TextFileResDTO.builder().text(gptService.responseGPT(request)).build();
+        TextFileResDTO result = textConverter.toTextFileResDTO(gptService.responseGPT(request));
+        return result;
     }
 }
