@@ -281,7 +281,7 @@ public class GptService {
 
         messages.add(new Message(text, "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0613:personal::9rJq4pTM", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0613:personal::9rWlz51c", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
