@@ -114,7 +114,7 @@ public class GptService {
         ObjectMapper objectMapper = new ObjectMapper();
         ChatGPTResponseDTO chatGPTResponseDTO = objectMapper.readValue(response.body(), ChatGPTResponseDTO.class);
         if(chatGPTResponseDTO.getChoices() ==null){
-            throw new ApiException(ErrorCode.SERVER_ERROR);
+            return "ERROR";
         }
         List<Choice> choices = chatGPTResponseDTO.getChoices();
 
@@ -261,7 +261,7 @@ public class GptService {
 
         messages.add(new Message(text, "user"));
 
-        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0613:personal::9prSIgJ8", messages, 0.3,false);
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("ft:gpt-3.5-turbo-0613:personal::9rJq4pTM", messages, 0.3,false);
         String input = null;
         input = mapper.writeValueAsString(chatGptRequest);
         System.out.println(input);
@@ -283,18 +283,18 @@ public class GptService {
         ObjectMapper mapper = new ObjectMapper();
         List<Message> messages = new ArrayList<>();
 
-        messages.add(new Message(keyword, "user"));
+        messages.add(new Message("image style : disney animation style \n " + keyword, "user"));
 
-        DalleRequestDTO dalleRequest = new DalleRequestDTO("dall-e-3", keyword, 1,"1024x1024");
+        DalleRequestDTO dalleRequest = new DalleRequestDTO("dall-e-3","image style : disney animation style \n " +  keyword, 1,"1024x1024");
         String input = null;
         input = mapper.writeValueAsString(dalleRequest);
         System.out.println(input);
-        System.out.println("apikey : " + gptApiCustomkey);
+        System.out.println("apikey : " + gptApiKey);
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.openai.com/v1/images/generations"))
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer " + gptApiCustomkey)
+            .header("Authorization", "Bearer " + gptApiKey)
             .POST(HttpRequest.BodyPublishers.ofString(input))
             .build();
 
@@ -314,7 +314,7 @@ public class GptService {
         ObjectMapper objectMapper = new ObjectMapper();
         DalleResponseDTO dalleResponseDTO = objectMapper.readValue(response.body(), DalleResponseDTO.class);
         if(dalleResponseDTO.getData() ==null){
-            throw new ApiException(ErrorCode.SERVER_ERROR);
+            return null;
         }
         List<DalleResData> data = dalleResponseDTO.getData();
 
@@ -327,7 +327,7 @@ public class GptService {
     }
 
 
-    public HttpRequest requestImgPrompt(String reqText) throws JsonProcessingException {
+    public HttpRequest requestIconPrompt(String reqText) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<Message> messages = new ArrayList<>();
         // Assistant API 사용할지 Prompt를 변경할지 선택하기
@@ -349,6 +349,31 @@ public class GptService {
                 .header("Authorization", "Bearer " + gptApiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(input))
                 .build();
+
+        return request;
+    }
+
+    public HttpRequest requestImgPrompt(String reqText) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Message> messages = new ArrayList<>();
+        // Assistant API 사용할지 Prompt를 변경할지 선택하기
+        // 시스템 역할 설정
+        messages.add(new Message("너는 삽화를 어떻게 만들어야 하는 줄 알고, 내용에 중요한 부분을 동화책 삽화 프롬프트로 작성할 수 있는 전문가야. ", "system"));
+
+        messages.add(new Message(reqText+"\n\n 이 페이지 내용을 토대로 동화책 삽화 1개만 그리고 싶어. 따뜻한 느낌의 동화책에 맞는 그림체로 삽화 만드는 프롬프트 작성해줘 ", "user"));
+
+        ChatGPTRequestDTO chatGptRequest = new ChatGPTRequestDTO("gpt-4", messages, 0.3,false);
+        String input = null;
+        input = mapper.writeValueAsString(chatGptRequest);
+        System.out.println(input);
+        System.out.println("apikey : " + gptApiKey);
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+            .header("Content-Type", "application/json")
+            .header("Authorization", "Bearer " + gptApiKey)
+            .POST(HttpRequest.BodyPublishers.ofString(input))
+            .build();
 
         return request;
     }
