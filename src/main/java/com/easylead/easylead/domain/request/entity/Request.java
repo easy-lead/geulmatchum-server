@@ -2,6 +2,7 @@ package com.easylead.easylead.domain.request.entity;
 
 import com.easylead.easylead.domain.books.entity.Book;
 import com.easylead.easylead.domain.users.entity.Users;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -18,6 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @EqualsAndHashCode
 @NoArgsConstructor(access = PROTECTED)
 @Getter
+@Setter
 @Entity
 public class Request {
     @EmbeddedId
@@ -42,5 +44,15 @@ public class Request {
     private String cover;
     private String author;
     private String publisher;
+
+    public void updateProgress(Progress progress){
+        this.setProgress(progress);
+
+    }
+
+    @JsonGetter("progressDescription") // Custom JSON field name
+    public String getProgressDescription() {
+        return progress != null ? progress.getDescription() : null;
+    }
 
 }

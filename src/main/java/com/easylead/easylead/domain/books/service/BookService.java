@@ -6,8 +6,13 @@ import com.easylead.easylead.domain.books.entity.Book;
 import com.easylead.easylead.domain.books.entity.Origin;
 import com.easylead.easylead.domain.books.repository.BookRepository;
 import com.easylead.easylead.domain.books.repository.OriginRepository;
+import com.easylead.easylead.domain.gpt.service.GptService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.net.http.HttpRequest;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +24,7 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final OriginRepository originRepository;
+    private final GptService gptService;
     public boolean isBook(String ISBN){
 
         if(bookRepository.findById(ISBN).isPresent())
@@ -35,4 +41,29 @@ public class BookService {
     public Book save(Book book){
         return bookRepository.save(book);
     }
+
+    @Async("taskExecutor1")
+    public CompletableFuture<String> transformContent(String pageContent) throws JsonProcessingException {
+        String easyContent = null;
+        do{
+            HttpRequest requestGPT = gptService.requestGPT(pageContent);
+            easyContent = gptService.responseGPT(requestGPT);
+        }while (easyContent.equals("ERROR"));
+
+        return CompletableFuture.completedFuture(easyContent);
+    }
+    @Async("taskExecutor2")
+    public CompletableFuture<String>  makeImage(String pageContent) throws JsonProcessingException {
+        String imgPrompt = null;
+        do{
+            HttpRequest requestImgPrompt = gptService.requestImgPrompt(pageContent);
+            imgPrompt = gptService.responseGPT(requestImgPrompt);
+        }while (imgPrompt.equals("ERROR"));
+
+
+        HttpRequest requestImg = gptService.requestGPTImage(imgPrompt);
+        String imgUrl = gptService.responseDalle(requestImg);
+      return CompletableFuture.completedFuture(imgUrl);
+    }
+
 }
