@@ -94,25 +94,25 @@ public class BookBusiness {
         Book book = bookConverter.toBook(request);
         System.out.println(book.getISBN()+"  "+ book.getTitle());
         Book saveBook = bookService.save(book);
-        for(Origin originContent : originList){
-
-            String easyContent= null;
-            String imgUrl = null;
-            try {
-                // 두 비동기 작업을 병렬로 시작
-                CompletableFuture<String> easyContentFuture = bookService.transformContent(originContent.getPageContent());
-                CompletableFuture<String> imgUrlFuture = bookService.makeImage(originContent.getPageContent());
-
-                // 두 작업이 모두 완료될 때까지 기다림
-                easyContent = easyContentFuture.get();
-                imgUrl = imgUrlFuture.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-
-          Content content = contentConverter.toContent(saveBook,easyContent,originContent.getOriginId(),imgUrl);
-            contentService.save(content);
-        }
+//        for(Origin originContent : originList){
+//
+//            String easyContent= null;
+//            String imgUrl = null;
+//            try {
+//                // 두 비동기 작업을 병렬로 시작
+//                CompletableFuture<String> easyContentFuture = bookService.transformContent(originContent.getPageContent());
+//                CompletableFuture<String> imgUrlFuture = bookService.makeImage(originContent.getPageContent());
+//
+//                // 두 작업이 모두 완료될 때까지 기다림
+//                easyContent = easyContentFuture.get();
+//                imgUrl = imgUrlFuture.get();
+//            } catch (InterruptedException | ExecutionException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//          Content content = contentConverter.toContent(saveBook,easyContent,originContent.getOriginId(),imgUrl);
+//            contentService.save(content);
+//        }
         request.updateProgress(Progress.P4);
         requestService.update(request);
 
@@ -132,7 +132,7 @@ public class BookBusiness {
         readService.save(read);
 
 
-        return BookContentResDTO.builder().content(contentList).maxPage(maxPage).build();
+        return BookContentResDTO.builder().pageId(pageId).content(contentList).maxPage(maxPage).build();
     }
 
   public List<BookInfoResDTO> recentList() {
