@@ -58,8 +58,8 @@ public class TextBusiness {
         log.info("=========== reqText : "+reqText+"============");
 
 
-        HttpRequest request =  gptService.requestGPTCustom(reqText);
-        TextFileResDTO result = textConverter.toTextFileResDTO(gptService.responseGPT(request));
-        return result;
+        HttpRequest request =  gptService.requestGPT(reqText,"gpt-4o-mini");
+        return TextFileResDTO.builder().text(gptService.responseGPT(request)).build();
+
     }
 }

@@ -25,6 +25,7 @@ public class TextController {
 
     @PostMapping(value = "/image")
     public ResponseEntity<TextFileResDTO> easyToReadImage(
+
                                         @RequestPart(value = "image") MultipartFile file) throws JsonProcessingException {
 
             return ResponseEntity.ok(textBusiness.easyToReadImage(file));
