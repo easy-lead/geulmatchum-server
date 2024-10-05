@@ -60,5 +60,6 @@ public class TextBusiness {
 
         HttpRequest request =  gptService.requestGPT(reqText,"gpt-4o-mini");
         return TextFileResDTO.builder().text(gptService.responseGPT(request)).build();
+
     }
 }
