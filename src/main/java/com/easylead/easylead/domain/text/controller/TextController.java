@@ -23,7 +23,7 @@ import java.util.Locale;
 public class TextController {
     private final TextBusiness textBusiness;
 
-    @PostMapping(value = "/image", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/image")
     public ResponseEntity<TextFileResDTO> easyToReadImage(Locale locale,
                                         HttpServletRequest request,
                                         HttpServletResponse response,
